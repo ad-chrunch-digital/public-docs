@@ -1,12 +1,12 @@
 # AWS S3 Cross-Account Access
 
-**ARN Request — Granting You Access to Our S3 Bucket**
+**ARN Request — Granting You Write Access to Our S3 Bucket**
 
 ---
 
 ## Overview
 
-We host data files in an AWS S3 bucket and would like to grant your AWS account direct access to retrieve them. To set this up securely, we use AWS cross-account access, which requires your AWS Account ARN (Amazon Resource Name).
+We host an AWS S3 bucket where we would like you to deliver data files directly. To enable this securely, we use AWS cross-account access, which requires your AWS Account ARN (Amazon Resource Name).
 
 This document explains what an ARN is, how to find yours, and what to expect once you provide it to us.
 
@@ -16,11 +16,11 @@ Please provide us with the following:
 
 - **Your AWS Account ARN** — this is the identity we will authorize in our bucket policy. It typically looks like: `arn:aws:iam::123456789012:root`
 - **Preferred IAM principal (optional)** — if you would like us to grant access to a specific IAM role or user rather than the entire account, please provide that ARN instead (e.g., `arn:aws:iam::123456789012:role/YourRoleName`).
-- **Contact confirmation** — once you send us the ARN, we will configure access and confirm when the bucket is ready for you.
+- **Contact confirmation** — once you send us the ARN, we will configure access and confirm when the bucket is ready for you to begin uploading.
 
 ## What Is an ARN?
 
-An ARN (Amazon Resource Name) is a unique identifier for resources within AWS. For cross-account S3 access, we need the ARN of either your AWS account root or a specific IAM role/user. This allows us to add a policy to our S3 bucket that explicitly grants your identity permission to access the files.
+An ARN (Amazon Resource Name) is a unique identifier for resources within AWS. For cross-account S3 access, we need the ARN of either your AWS account root or a specific IAM role/user. This allows us to add a policy to our S3 bucket that explicitly grants your identity permission to upload files.
 
 Common ARN formats:
 
@@ -63,9 +63,9 @@ This command returns your Account ID and ARN. Send us the value from the `Arn` f
 
 Once you provide your ARN, here is what we will do on our side:
 
-1. We will add your ARN to the bucket policy on our S3 bucket, granting you read access to the relevant files.
-2. We will confirm the setup is complete and provide you with the bucket name, region, and any relevant path/prefix.
-3. You will then be able to access the files using the AWS CLI, SDKs, or any S3-compatible tooling from your AWS account.
+1. We will add your ARN to the bucket policy on our S3 bucket, granting you write access to upload files.
+2. We will confirm the setup is complete and provide you with the bucket name, region, and the designated path/prefix where files should be uploaded.
+3. You will then be able to upload files using the AWS CLI, SDKs, or any S3-compatible tooling from your AWS account.
 
 ### Permissions We Will Grant
 
@@ -73,17 +73,19 @@ The following permissions will be applied to your ARN on our bucket:
 
 | Permission | Purpose |
 | --- | --- |
-| `s3:GetObject` | Allows you to download/read files from the bucket. |
-| `s3:ListBucket` | Allows you to list the contents of the bucket or a specific prefix. |
+| `s3:PutObject` | Allows you to upload data files to the bucket. |
+| `s3:GetObject` | Allows you to verify uploaded files and avoid overwriting existing objects. |
+| `s3:ListBucket` | Allows you to list the contents of the bucket or a specific prefix to confirm uploads. |
 | `s3:GetBucketLocation` | Allows you to determine the bucket's AWS region. |
 
-> **Note:** These are read-only permissions. You will not be able to modify, delete, or upload files to our bucket.
+> **Note:** These permissions allow you to upload and verify files. You will not be able to delete objects, modify bucket settings, or change permissions on our bucket.
 
 ## Security Considerations
 
 - Your ARN is not sensitive information — it is an identifier, not a credential. It cannot be used by others to access your AWS resources.
 - The bucket policy we apply only grants access to the specific ARN you provide. No other AWS accounts will gain access through this policy.
 - If you prefer, you can create a dedicated IAM role for this integration and provide that role's ARN. This allows you to control and audit access independently within your own AWS account.
+- We may restrict write access to a specific folder/prefix within the bucket to keep uploaded files organized.
 - Access can be revoked at any time by either party — we can remove your ARN from our policy, or you can delete/disable the IAM principal on your end.
 
 ---
